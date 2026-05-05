@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ねぶた 寸法計算ツール 🏮</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#C62828">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ねぶた寸法">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap');
+*{ box-sizing:border-box; margin:0; padding:0; }
+body{
+  font-family:'M PLUS Rounded 1c','Hiragino Maru Gothic Pro',sans-serif;
+  background:#FFF8F0; min-height:100vh;
+  display:flex; justify-content:center;
+}
+#app{ width:100%; max-width:520px; padding:0 0 40px; }
+
+/* HEADER */
+.header{
+  background:linear-gradient(135deg,#C62828,#FF6F00);
+  padding:20px; text-align:center; color:white;
+  box-shadow:0 4px 16px rgba(198,40,40,.4);
+}
+.header-lantern{ font-size:3em; display:block; margin-bottom:6px; }
+.header h1{ font-size:1.4em; font-weight:800; text-shadow:1px 2px 0 rgba(0,0,0,.2); }
+.header p{ font-size:.82em; opacity:.9; margin-top:4px; }
+
+/* INPUT SECTION */
+.input-section{
+  background:white; margin:16px 14px; border-radius:20px;
+  padding:20px; box-shadow:0 4px 18px rgba(0,0,0,.1);
+}
+.input-label{
+  font-size:.88em; font-weight:800; color:#C62828;
+  letter-spacing:.5px; margin-bottom:6px;
+}
+.input-desc{
+  font-size:.78em; color:#888; margin-bottom:12px; line-height:1.6;
+}
+.input-row{
+  display:flex; align-items:center; gap:10px;
+  background:#FFF3E0; border-radius:14px; padding:12px 16px;
+  border:2px solid #FFCCBC;
+}
+.input-emoji{ font-size:2em; }
+.input-wrap{ flex:1; }
+.input-name{ font-size:.8em; font-weight:700; color:#BF360C; margin-bottom:4px; }
+.input-field-row{ display:flex; align-items:center; gap:8px; }
+input[type=number]{
+  width:90px; font-size:1.6em; font-weight:800; font-family:inherit;
+  border:none; background:white; border-radius:10px;
+  padding:6px 10px; text-align:center; color:#333;
+  box-shadow:inset 0 2px 8px rgba(0,0,0,.1);
+  -moz-appearance:textfield;
+}
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button{ -webkit-appearance:none; }
+input[type=number]:focus{ outline:3px solid #FF6F00; }
+.unit-label{ font-size:1em; font-weight:700; color:#888; }
+
+.ratio-badge{
+  display:inline-flex; align-items:center; gap:6px;
+  background:linear-gradient(135deg,#C62828,#FF6F00);
+  color:white; border-radius:50px; padding:8px 16px;
+  font-size:1em; font-weight:800; margin-top:12px;
+  box-shadow:0 3px 10px rgba(198,40,40,.35);
+}
+.ratio-badge .ratio-val{ font-size:1.4em; }
+
+/* RESULTS */
+.results-section{ margin:0 14px; }
+.results-title{
+  font-size:.9em; font-weight:800; color:#555;
+  margin-bottom:10px; padding-left:4px;
+}
+.part-cards{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.part-card{
+  border-radius:16px; padding:14px 12px;
+  box-shadow:0 3px 12px rgba(0,0,0,.1);
+  position:relative; overflow:hidden;
+}
+.part-card::before{
+  content:''; position:absolute; top:-10px; right:-10px;
+  width:60px; height:60px; border-radius:50%;
+  background:rgba(255,255,255,.15);
+}
+.part-emoji{ font-size:1.8em; margin-bottom:4px; }
+.part-name{ font-size:.82em; font-weight:800; color:white; margin-bottom:2px; }
+.part-where{ font-size:.68em; color:rgba(255,255,255,.85); line-height:1.5; margin-bottom:8px; }
+.part-val{
+  font-size:1.8em; font-weight:800; color:white;
+  text-shadow:1px 2px 0 rgba(0,0,0,.15);
+}
+.part-val span{ font-size:.55em; font-weight:700; }
+
+.card-men  { background:linear-gradient(135deg,#C62828,#E53935); }
+.card-ude  { background:linear-gradient(135deg,#1565C0,#1E88E5); }
+.card-te   { background:linear-gradient(135deg,#2E7D32,#43A047); }
+.card-ashi { background:linear-gradient(135deg,#6A1B9A,#8E24AA); }
+.card-sune { background:linear-gradient(135deg,#E65100,#F57C00); }
+.card-men  { grid-column:span 2; }
+
+/* FIGURE */
+.figure-section{
+  background:white; margin:14px 14px; border-radius:20px;
+  padding:16px; box-shadow:0 4px 18px rgba(0,0,0,.1);
+}
+.figure-title{
+  font-size:.9em; font-weight:800; color:#555;
+  margin-bottom:12px; text-align:center;
+}
+.figure-wrap{ overflow-x:auto; }
+svg.figure{
+  display:block; margin:0 auto;
+  max-width:100%;
+}
+
+/* GUIDE */
+.guide-section{
+  background:white; margin:14px 14px; border-radius:20px;
+  padding:16px; box-shadow:0 4px 18px rgba(0,0,0,.1);
+}
+.guide-title{ font-size:.9em; font-weight:800; color:#555; margin-bottom:10px; }
+.guide-item{
+  display:flex; align-items:flex-start; gap:10px;
+  padding:8px 0; border-bottom:1px dashed #EEE;
+}
+.guide-item:last-child{ border-bottom:none; }
+.guide-dot{
+  width:12px; height:12px; border-radius:50%; flex-shrink:0; margin-top:4px;
+}
+.guide-body{ flex:1; }
+.guide-name{ font-size:.85em; font-weight:800; }
+.guide-where{ font-size:.78em; color:#666; line-height:1.6; margin-top:2px; }
+
+/* FOOTER */
+.footer{ text-align:center; padding:10px; font-size:.72em; color:#BBB; }
+
+/* LOGIN */
+#login-overlay{
+  position:fixed; inset:0; z-index:9999;
+  background:linear-gradient(160deg,#C62828,#FF6F00);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:16px; padding:32px;
+}
+#login-overlay .login-lantern{ font-size:4em; }
+#login-overlay h2{
+  color:white; font-size:1.4em; font-weight:800;
+  text-shadow:1px 2px 0 rgba(0,0,0,.2); text-align:center;
+}
+#login-overlay p{
+  color:rgba(255,255,255,.85); font-size:.85em; text-align:center;
+}
+#login-box{
+  background:white; border-radius:20px;
+  padding:24px 20px; width:100%; max-width:320px;
+  box-shadow:0 8px 30px rgba(0,0,0,.2);
+  display:flex; flex-direction:column; gap:12px;
+}
+#pw-input{
+  width:100%; font-size:1.3em; font-weight:800; font-family:inherit;
+  border:2px solid #FFCCBC; border-radius:12px;
+  padding:10px 14px; text-align:center; color:#333;
+  outline:none;
+}
+#pw-input:focus{ border-color:#FF6F00; }
+#login-btn{
+  width:100%; padding:12px;
+  background:linear-gradient(135deg,#C62828,#FF6F00);
+  color:white; font-size:1.1em; font-weight:800; font-family:inherit;
+  border:none; border-radius:12px; cursor:pointer;
+  box-shadow:0 4px 14px rgba(198,40,40,.4);
+}
+#login-btn:active{ opacity:.85; }
+#login-error{
+  color:#C62828; font-size:.85em; font-weight:700;
+  text-align:center; display:none;
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN OVERLAY -->
+<div id="login-overlay">
+  <div class="login-lantern">🏮</div>
+  <h2>人物寸法計算ツール</h2>
+  <p>パスワードを入力してください</p>
+  <div id="login-box">
+    <input type="password" id="pw-input" placeholder="パスワード"
+           onkeydown="if(event.key==='Enter')doLogin()">
+    <button id="login-btn" onclick="doLogin()">ログイン</button>
+    <div id="login-error">パスワードが違います</div>
+  </div>
+</div>
+
+<div id="app">
+
+<!-- HEADER -->
+<div class="header">
+  <span class="header-lantern">🏮</span>
+  <h1>ねぶた 寸法計算ツール</h1>
+  <p>人物バランスの　かんたん計算</p>
+</div>
+
+<!-- INPUT -->
+<div class="input-section">
+  <div class="input-label">📐 かおの　おおきさを　いれてね</div>
+  <div class="input-desc">
+    「あご」から「ひたい（かみのはえぎわ）」まで<br>
+    なんセンチか　はかって　いれよう！
+  </div>
+  <div class="input-row">
+    <span class="input-emoji">😊</span>
+    <div class="input-wrap">
+      <div class="input-name">面（めん）のサイズ</div>
+      <div class="input-field-row">
+        <input type="number" id="face-input" value="10" min="1" max="999" step="0.1" oninput="calc()">
+        <span class="unit-label">cm</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div class="results-section">
+  <div class="results-title">🔢 けいさん けっか</div>
+  <div class="part-cards">
+
+    <div class="part-card card-men">
+      <div class="part-emoji">😊</div>
+      <div class="part-name">面（めん）</div>
+      <div class="part-where">あご ～ ひたい（かみのはえぎわ）</div>
+      <div class="part-val" id="val-men">10.0<span>cm</span></div>
+    </div>
+
+    <div class="part-card card-ude">
+      <div class="part-emoji">💪</div>
+      <div class="part-name">腕（うで）</div>
+      <div class="part-where">てくび〜ひじ<br>＝ひじ〜かた</div>
+      <div class="part-val" id="val-ude">11.0<span>cm</span></div>
+    </div>
+
+    <div class="part-card card-te">
+      <div class="part-emoji">🖐️</div>
+      <div class="part-name">手（て）</div>
+      <div class="part-where">てくび〜なかゆびのさき</div>
+      <div class="part-val" id="val-te">10.0<span>cm</span></div>
+    </div>
+
+    <div class="part-card card-ashi">
+      <div class="part-emoji">🦶</div>
+      <div class="part-name">足（あし）</div>
+      <div class="part-where">つまさき〜あしくび</div>
+      <div class="part-val" id="val-ashi">13.0<span>cm</span></div>
+    </div>
+
+    <div class="part-card card-sune" style="grid-column:span 2">
+      <div class="part-emoji">🦵</div>
+      <div class="part-name">すね</div>
+      <div class="part-where">あしくび〜ひざ　＝　ひざ〜ふとももつけね</div>
+      <div class="part-val" id="val-sune">16.0<span>cm</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FIGURE -->
+<div class="figure-section">
+  <div class="figure-title">👤 人物　バランス図</div>
+  <div class="figure-wrap">
+    <svg class="figure" viewBox="0 0 340 465" width="340" height="465">
+
+      <!-- 凡例カラー定義 -->
+      <defs>
+        <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#555"/>
+        </marker>
+        <marker id="arr-men" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#C62828"/>
+        </marker>
+        <marker id="arr-men-rev" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto-start-reverse">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#C62828"/>
+        </marker>
+        <marker id="arr-ude" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#1565C0"/>
+        </marker>
+        <marker id="arr-ude-rev" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto-start-reverse">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#1565C0"/>
+        </marker>
+        <marker id="arr-te" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#2E7D32"/>
+        </marker>
+        <marker id="arr-te-rev" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto-start-reverse">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#2E7D32"/>
+        </marker>
+        <marker id="arr-ashi" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#6A1B9A"/>
+        </marker>
+        <marker id="arr-ashi-rev" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto-start-reverse">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#6A1B9A"/>
+        </marker>
+        <marker id="arr-sune" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#E65100"/>
+        </marker>
+        <marker id="arr-sune-rev" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto-start-reverse">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#E65100"/>
+        </marker>
+        <marker id="arr-orange" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#FF6F00"/>
+        </marker>
+        <marker id="arr-orange-rev" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto-start-reverse">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#FF6F00"/>
+        </marker>
+      </defs>
+
+      <!-- ======= 人物シルエット ======= -->
+
+      <!-- 胴体上（UPPER TORSO） -->
+      <rect x="108" y="96" width="124" height="90" rx="10" fill="#EF9A9A" stroke="#BDBDBD" stroke-width="2"/>
+      <!-- 胴体下（LOWER TORSO） -->
+      <rect x="118" y="194" width="104" height="62" rx="8" fill="#EF9A9A" stroke="#BDBDBD" stroke-width="2"/>
+
+      <!-- 左腕上（かた→ひじ） -->
+      <rect x="80" y="108" width="28" height="62" rx="8" fill="#42A5F5" stroke="#BDBDBD" stroke-width="2"/>
+      <!-- 左腕下（ひじ→てくび） -->
+      <rect x="80" y="174" width="28" height="62" rx="8" fill="#90CAF9" stroke="#BDBDBD" stroke-width="2"/>
+      <!-- 左手 -->
+      <ellipse cx="94" cy="250" rx="14" ry="18" fill="#FFCC80" stroke="#BDBDBD" stroke-width="2"/>
+
+      <!-- 右腕上（かた→ひじ） -->
+      <rect x="232" y="108" width="28" height="62" rx="8" fill="#42A5F5" stroke="#BDBDBD" stroke-width="2"/>
+      <!-- 右腕下（ひじ→てくび） -->
+      <rect x="232" y="174" width="28" height="62" rx="8" fill="#90CAF9" stroke="#BDBDBD" stroke-width="2"/>
+      <!-- 右手 -->
+      <ellipse cx="246" cy="250" rx="14" ry="18" fill="#FFCC80" stroke="#BDBDBD" stroke-width="2"/>
+      <!-- ひじ区切りライン（左） -->
+      <line x1="80" y1="172" x2="108" y2="172" stroke="#1565C0" stroke-width="2"/>
+      <!-- ひじ区切りライン（右） -->
+      <line x1="232" y1="172" x2="260" y2="172" stroke="#1565C0" stroke-width="2"/>
+
+      <!-- 左脚上（ひざ～ふともも） -->
+      <rect x="108" y="260" width="46" height="72" rx="8" fill="#CE93D8" stroke="#BDBDBD" stroke-width="2"/>
+      <!-- 左脚下（あしくび～ひざ） -->
+      <rect x="108" y="336" width="46" height="72" rx="8" fill="#CE93D8" stroke="#BDBDBD" stroke-width="2"/>
+      <!-- 左足 -->
+      <rect x="94" y="410" width="68" height="22" rx="6" fill="#B39DDB" stroke="#BDBDBD" stroke-width="2"/>
+
+      <!-- 右脚上（ひざ～ふともも） -->
+      <rect x="186" y="260" width="46" height="72" rx="8" fill="#CE93D8" stroke="#BDBDBD" stroke-width="2"/>
+      <!-- 右脚下（あしくび～ひざ） -->
+      <rect x="186" y="336" width="46" height="72" rx="8" fill="#CE93D8" stroke="#BDBDBD" stroke-width="2"/>
+      <!-- 右足 -->
+      <rect x="178" y="410" width="68" height="22" rx="6" fill="#B39DDB" stroke="#BDBDBD" stroke-width="2"/>
+
+      <!-- ======= 寸法ライン ======= -->
+
+
+      <!-- 腕：かた→ひじ（右腕右側 縦ライン） -->
+      <line x1="266" y1="108" x2="266" y2="170"
+            stroke="#1565C0" stroke-width="2" stroke-dasharray="4,2"
+            marker-start="url(#arr-ude-rev)" marker-end="url(#arr-ude)"/>
+      <text id="fig-ude" x="274" y="140" text-anchor="start" fill="#1565C0" font-size="10" font-weight="800">11.0cm</text>
+      <text x="274" y="152" text-anchor="start" fill="#1565C0" font-size="8">かた→ひじ</text>
+
+      <!-- 腕：ひじ→てくび（縦ライン） -->
+      <line x1="266" y1="174" x2="266" y2="234"
+            stroke="#1565C0" stroke-width="2" stroke-dasharray="4,2"
+            marker-start="url(#arr-ude-rev)" marker-end="url(#arr-ude)"/>
+      <text id="fig-ude2" x="274" y="207" text-anchor="start" fill="#1565C0" font-size="10" font-weight="800">11.0cm</text>
+      <text x="274" y="219" text-anchor="start" fill="#1565C0" font-size="8">ひじ→てくび</text>
+
+      <!-- 手（左腕左側 縦ライン） -->
+      <line x1="74" y1="236" x2="74" y2="266"
+            stroke="#2E7D32" stroke-width="2" stroke-dasharray="4,2"
+            marker-start="url(#arr-te-rev)" marker-end="url(#arr-te)"/>
+      <text id="fig-te" x="68" y="253" text-anchor="end" fill="#2E7D32" font-size="10" font-weight="800">10.0cm</text>
+      <text x="68" y="265" text-anchor="end" fill="#2E7D32" font-size="8">手</text>
+
+      <!-- すね（右脚右側）：縦ライン2本 -->
+      <!-- 上：ひざ→ふとももつけね -->
+      <line x1="238" y1="260" x2="238" y2="332"
+            stroke="#E65100" stroke-width="2" stroke-dasharray="4,2"
+            marker-start="url(#arr-sune-rev)" marker-end="url(#arr-sune)"/>
+      <text id="fig-sune" x="246" y="296" text-anchor="start" fill="#E65100" font-size="10" font-weight="800">16.0cm</text>
+      <text x="246" y="308" text-anchor="start" fill="#E65100" font-size="8">ひざ→ふともも</text>
+
+      <!-- 下：あしくび→ひざ -->
+      <line x1="238" y1="336" x2="238" y2="408"
+            stroke="#E65100" stroke-width="2" stroke-dasharray="4,2"
+            marker-start="url(#arr-sune-rev)" marker-end="url(#arr-sune)"/>
+      <text id="fig-sune2" x="246" y="372" text-anchor="start" fill="#E65100" font-size="10" font-weight="800">16.0cm</text>
+      <text x="246" y="384" text-anchor="start" fill="#E65100" font-size="8">あしくび→ひざ</text>
+
+      <!-- 足（左）：つまさき→かかと 水平ライン -->
+      <line x1="94" y1="442" x2="162" y2="442"
+            stroke="#6A1B9A" stroke-width="2" stroke-dasharray="4,2"
+            marker-start="url(#arr-ashi-rev)" marker-end="url(#arr-ashi)"/>
+      <text x="128" y="438" text-anchor="middle" fill="#6A1B9A" font-size="8">つまさき→かかと</text>
+      <text id="fig-ashi2" x="128" y="456" text-anchor="middle" fill="#6A1B9A" font-size="11" font-weight="800">13.0cm</text>
+
+      <!-- 関節ドット -->
+      <circle cx="170" cy="88" r="4" fill="#FF6F00"/>
+      <!-- 肩 -->
+      <circle cx="108" cy="116" r="5" fill="#1565C0"/>
+      <circle cx="232" cy="116" r="5" fill="#1565C0"/>
+      <!-- ひじ -->
+      <circle cx="94" cy="172" r="5" fill="#1565C0"/>
+      <circle cx="246" cy="172" r="5" fill="#1565C0"/>
+      <!-- てくび -->
+      <circle cx="94" cy="236" r="4" fill="#2E7D32"/>
+      <circle cx="246" cy="236" r="4" fill="#2E7D32"/>
+      <circle cx="131" cy="260" r="4" fill="#E65100"/>
+      <circle cx="209" cy="260" r="4" fill="#E65100"/>
+      <circle cx="131" cy="332" r="4" fill="#E65100"/>
+      <circle cx="209" cy="332" r="4" fill="#E65100"/>
+      <circle cx="131" cy="408" r="4" fill="#6A1B9A"/>
+      <circle cx="209" cy="408" r="4" fill="#6A1B9A"/>
+
+      <!-- 頭（HEAD）全体 最前面 38px下にシフト（中心水平線y=96が肩の上と一致） -->
+      <g transform="translate(0,38)">
+      <!-- 髪（上部塗り） -->
+      <ellipse cx="170" cy="10" rx="38" ry="20" fill="#795548"/>
+      <rect x="132" y="10" width="76" height="14" fill="#795548"/>
+      <!-- 頭（HEAD）大円 -->
+      <circle cx="170" cy="50" r="44" fill="#FFF8F0" stroke="#888" stroke-width="2"/>
+      <!-- 面の内枠（楕円） -->
+      <ellipse cx="170" cy="59" rx="28" ry="34" fill="none" stroke="#BDBDBD" stroke-width="1.5"/>
+      <!-- 中心縦軸（補助線） -->
+      <line x1="170" y1="6" x2="170" y2="96" stroke="#BDBDBD" stroke-width="1" stroke-dasharray="3,2"/>
+      <!-- 髪の生え際：水平補助線 -->
+      <line x1="130" y1="24" x2="210" y2="24" stroke="#C62828" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <!-- あご：水平補助線 -->
+      <line x1="130" y1="91" x2="210" y2="91" stroke="#C62828" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <!-- 寸法矢印（縦、右寄り） -->
+      <line x1="186" y1="24" x2="186" y2="91"
+            stroke="#C62828" stroke-width="2"
+            marker-start="url(#arr-men-rev)" marker-end="url(#arr-men)"/>
+      <!-- 端点ティック -->
+      <line x1="182" y1="24" x2="190" y2="24" stroke="#C62828" stroke-width="1.5"/>
+      <line x1="182" y1="91" x2="190" y2="91" stroke="#C62828" stroke-width="1.5"/>
+      <!-- ラベル -->
+      <text x="193" y="30" fill="#C62828" font-size="9" font-weight="700">髪の生え際</text>
+      <text x="193" y="89" fill="#C62828" font-size="9" font-weight="700">あご</text>
+      <text id="fig-men" x="150" y="62" text-anchor="middle" fill="#C62828" font-size="12" font-weight="800">10.0cm</text>
+      </g>
+
+      <!-- 顔の中心水平線（最前面・肩の上 y=96） -->
+      <line x1="90" y1="96" x2="250" y2="96" stroke="#FF6F00" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+      <!-- 胸の位置水平線（最前面：中心y=96から顔高さ分下 y=163） -->
+      <line x1="90" y1="163" x2="250" y2="163" stroke="#FF6F00" stroke-width="2" stroke-dasharray="5,3"/>
+      <text x="170" y="174" text-anchor="middle" fill="#FF6F00" font-size="9" font-weight="800">むね</text>
+
+      <!-- 中心→むね 寸法線（左側 x=72、他寸法と重ならない位置） -->
+      <line x1="72" y1="96" x2="72" y2="163"
+            stroke="#FF6F00" stroke-width="2"
+            marker-start="url(#arr-orange-rev)" marker-end="url(#arr-orange)"/>
+      <line x1="68" y1="96" x2="76" y2="96" stroke="#FF6F00" stroke-width="1.5"/>
+      <line x1="68" y1="163" x2="76" y2="163" stroke="#FF6F00" stroke-width="1.5"/>
+      <text id="fig-center-chest" x="66" y="131" text-anchor="end" fill="#FF6F00" font-size="10" font-weight="800">10.0cm</text>
+      <text x="66" y="143" text-anchor="end" fill="#FF6F00" font-size="8">顔の中心線～むね</text>
+
+    </svg>
+  </div>
+</div>
+
+
+<div class="footer">ねぶた 人物バランス計算ツール</div>
+
+</div><!-- #app -->
+
+<script>
+const PW = 'yuito0126';
+
+function doLogin(){
+  const val = document.getElementById('pw-input').value;
+  if(val === PW){
+    sessionStorage.setItem('nebuta_auth','1');
+    document.getElementById('login-overlay').style.display='none';
+  } else {
+    document.getElementById('login-error').style.display='block';
+    document.getElementById('pw-input').value='';
+    document.getElementById('pw-input').focus();
+  }
+}
+
+if(sessionStorage.getItem('nebuta_auth')==='1'){
+  document.getElementById('login-overlay').style.display='none';
+}
+
+const REF = { men:20, ude:22, te:20, ashi:26, sune:32 };
+
+function fmt(v){ return v.toFixed(1); }
+
+function calc(){
+  const face = parseFloat(document.getElementById('face-input').value) || 0;
+  const ratio = face / REF.men;
+
+  const men  = face;
+  const ude  = REF.ude  * ratio;
+  const te   = REF.te   * ratio;
+  const ashi = REF.ashi * ratio;
+  const sune = REF.sune * ratio;
+
+  document.getElementById('val-men').innerHTML  = fmt(men)  + '<span>cm</span>';
+  document.getElementById('val-ude').innerHTML  = fmt(ude)  + '<span>cm</span>';
+  document.getElementById('val-te').innerHTML   = fmt(te)   + '<span>cm</span>';
+  document.getElementById('val-ashi').innerHTML = fmt(ashi) + '<span>cm</span>';
+  document.getElementById('val-sune').innerHTML = fmt(sune) + '<span>cm</span>';
+
+  // 図のラベル更新
+  document.getElementById('fig-men').textContent          = fmt(men)  + 'cm';
+  document.getElementById('fig-center-chest').textContent = fmt(men)  + 'cm';
+  document.getElementById('fig-ude').textContent   = fmt(ude)  + 'cm';
+  document.getElementById('fig-ude2').textContent  = fmt(ude)  + 'cm';
+  document.getElementById('fig-te').textContent    = fmt(te)   + 'cm';
+  document.getElementById('fig-ashi2').textContent = fmt(ashi) + 'cm';
+  document.getElementById('fig-sune').textContent  = fmt(sune) + 'cm';
+  document.getElementById('fig-sune2').textContent = fmt(sune) + 'cm';
+}
+
+calc();
+</script>
+</body>
+</html>
