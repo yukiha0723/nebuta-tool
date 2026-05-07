@@ -629,6 +629,10 @@ input[type="range"].hp-range{
 /* ══════════════════════════════════
    ログイン
 ══════════════════════════════════ */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
+
 const PW = 'yuito0126';
 
 function doLogin(){
