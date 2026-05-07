@@ -30,6 +30,25 @@ body{
 .header h1{ font-size:1.4em; font-weight:800; text-shadow:1px 2px 0 rgba(0,0,0,.2); }
 .header p{ font-size:.82em; opacity:.9; margin-top:4px; }
 
+/* ─── ナビゲーション ─── */
+.tool-nav{
+  display:flex; background:#fff;
+  border-bottom:2px solid #FFCCBC;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
+}
+.tool-nav-btn{
+  flex:1; padding:12px 8px;
+  border:none; background:transparent;
+  font-family:inherit; font-size:.88em; font-weight:700;
+  color:#999; cursor:pointer;
+  border-bottom:3px solid transparent;
+  transition:color .2s, border-color .2s;
+}
+.tool-nav-btn.active{
+  color:#C62828;
+  border-bottom-color:#C62828;
+}
+
 /* INPUT SECTION */
 .input-section{
   background:white; margin:16px 14px; border-radius:20px;
@@ -182,6 +201,94 @@ svg.figure{
   color:#C62828; font-size:.85em; font-weight:700;
   text-align:center; display:none;
 }
+
+/* ─── 頭部比率ツール専用スタイル（hp- プレフィックス） ─── */
+.hp-container{ padding:14px; }
+
+.hp-input-section{
+  background:#fff; border-radius:20px;
+  padding:16px; margin-bottom:12px;
+  box-shadow:0 4px 18px rgba(0,0,0,.1);
+}
+.hp-input-label{
+  font-size:.88em; font-weight:800; color:#C62828;
+  margin-bottom:10px;
+}
+.hp-input-label span{
+  font-size:1.4em; font-weight:800; color:#222; margin-left:8px;
+}
+.hp-slider-row{
+  display:flex; align-items:center; gap:10px;
+}
+input[type="range"].hp-range{
+  flex:1; height:6px; accent-color:#C62828; cursor:pointer;
+  width:auto;
+}
+.hp-number{
+  width:64px; padding:6px 8px;
+  border:2px solid #FFCCBC; border-radius:10px;
+  font-size:1em; font-weight:800; font-family:inherit;
+  text-align:center; color:#222;
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.06);
+  -moz-appearance:textfield;
+}
+.hp-number::-webkit-outer-spin-button,
+.hp-number::-webkit-inner-spin-button{ -webkit-appearance:none; }
+.hp-number:focus{ outline:2px solid #FF6F00; }
+.hp-unit{ font-size:.9em; font-weight:700; color:#888; }
+
+.hp-tab-section{
+  background:#fff; border-radius:20px;
+  padding:16px; margin-bottom:12px;
+  box-shadow:0 4px 18px rgba(0,0,0,.1);
+}
+.hp-tabs{
+  display:flex; border-radius:10px; overflow:hidden;
+  border:1px solid #FFCCBC; margin-bottom:16px;
+}
+.hp-tab-btn{
+  flex:1; padding:10px;
+  border:none; background:#FFF8F0;
+  font-family:inherit; font-size:.95em; font-weight:700;
+  cursor:pointer; color:#999;
+  transition:background .2s, color .2s;
+}
+.hp-tab-btn.active{
+  background:linear-gradient(135deg,#C62828,#FF6F00);
+  color:#fff;
+}
+.hp-canvas-wrap{
+  display:flex; justify-content:center;
+}
+.hp-canvas-wrap canvas{ display:block; }
+
+.hp-result-section{
+  background:#fff; border-radius:20px;
+  padding:16px; box-shadow:0 4px 18px rgba(0,0,0,.1);
+}
+.hp-result-section h2{
+  font-size:.88em; font-weight:800; color:#C62828;
+  margin-bottom:12px;
+}
+.hp-table{
+  width:100%; border-collapse:collapse; font-size:.9em;
+}
+.hp-table thead tr{ background:#FFF3E0; }
+.hp-table th{
+  padding:8px 10px; text-align:left;
+  font-size:.82em; font-weight:800; color:#BF360C;
+}
+.hp-table td{
+  padding:9px 10px; border-bottom:1px solid #FFF3E0;
+}
+.hp-table tr:last-child td{ border-bottom:none; }
+.hp-dot{
+  display:inline-block; width:10px; height:10px;
+  border-radius:50%; margin-right:6px; vertical-align:middle;
+}
+.hp-td-value{
+  text-align:right; font-weight:800; color:#222;
+}
 </style>
 </head>
 <body>
@@ -204,9 +311,20 @@ svg.figure{
 <!-- HEADER -->
 <div class="header">
   <span class="header-lantern">🏮</span>
-  <h1>ねぶた 寸法計算ツール</h1>
-  <p>人物バランスの　かんたん計算</p>
+  <h1 id="header-title">ねぶた 寸法計算ツール</h1>
+  <p id="header-sub">人物バランスの　かんたん計算</p>
 </div>
+
+<!-- ナビゲーション -->
+<nav class="tool-nav">
+  <button class="tool-nav-btn active" id="nav-nebuta" onclick="switchTool('nebuta')">🏮 ねぶた計算</button>
+  <button class="tool-nav-btn" id="nav-head" onclick="switchTool('head')">👤 頭部比率</button>
+</nav>
+
+<!-- ════════════════════════════════
+     ツール①：ねぶた 寸法計算
+════════════════════════════════ -->
+<div id="tool-nebuta">
 
 <!-- INPUT -->
 <div class="input-section">
@@ -360,7 +478,6 @@ svg.figure{
 
       <!-- ======= 寸法ライン ======= -->
 
-
       <!-- 腕：かた→ひじ（右腕右側 縦ライン） -->
       <line x1="266" y1="108" x2="266" y2="170"
             stroke="#1565C0" stroke-width="2" stroke-dasharray="4,2"
@@ -383,14 +500,12 @@ svg.figure{
       <text x="68" y="265" text-anchor="end" fill="#2E7D32" font-size="8">手</text>
 
       <!-- すね（右脚右側）：縦ライン2本 -->
-      <!-- 上：ひざ→ふとももつけね -->
       <line x1="238" y1="260" x2="238" y2="332"
             stroke="#E65100" stroke-width="2" stroke-dasharray="4,2"
             marker-start="url(#arr-sune-rev)" marker-end="url(#arr-sune)"/>
       <text id="fig-sune" x="246" y="296" text-anchor="start" fill="#E65100" font-size="10" font-weight="800">16.0cm</text>
       <text x="246" y="308" text-anchor="start" fill="#E65100" font-size="8">ひざ→ふともも</text>
 
-      <!-- 下：あしくび→ひざ -->
       <line x1="238" y1="336" x2="238" y2="408"
             stroke="#E65100" stroke-width="2" stroke-dasharray="4,2"
             marker-start="url(#arr-sune-rev)" marker-end="url(#arr-sune)"/>
@@ -406,13 +521,10 @@ svg.figure{
 
       <!-- 関節ドット -->
       <circle cx="170" cy="88" r="4" fill="#FF6F00"/>
-      <!-- 肩 -->
       <circle cx="108" cy="116" r="5" fill="#1565C0"/>
       <circle cx="232" cy="116" r="5" fill="#1565C0"/>
-      <!-- ひじ -->
       <circle cx="94" cy="172" r="5" fill="#1565C0"/>
       <circle cx="246" cy="172" r="5" fill="#1565C0"/>
-      <!-- てくび -->
       <circle cx="94" cy="236" r="4" fill="#2E7D32"/>
       <circle cx="246" cy="236" r="4" fill="#2E7D32"/>
       <circle cx="131" cy="260" r="4" fill="#E65100"/>
@@ -422,42 +534,28 @@ svg.figure{
       <circle cx="131" cy="408" r="4" fill="#6A1B9A"/>
       <circle cx="209" cy="408" r="4" fill="#6A1B9A"/>
 
-      <!-- 頭（HEAD）全体 最前面 38px下にシフト（中心水平線y=96が肩の上と一致） -->
+      <!-- 頭（HEAD） -->
       <g transform="translate(0,38)">
-      <!-- 髪（上部塗り） -->
       <ellipse cx="170" cy="10" rx="38" ry="20" fill="#795548"/>
       <rect x="132" y="10" width="76" height="14" fill="#795548"/>
-      <!-- 頭（HEAD）大円 -->
       <circle cx="170" cy="50" r="44" fill="#FFF8F0" stroke="#888" stroke-width="2"/>
-      <!-- 面の内枠（楕円） -->
       <ellipse cx="170" cy="59" rx="28" ry="34" fill="none" stroke="#BDBDBD" stroke-width="1.5"/>
-      <!-- 中心縦軸（補助線） -->
       <line x1="170" y1="6" x2="170" y2="96" stroke="#BDBDBD" stroke-width="1" stroke-dasharray="3,2"/>
-      <!-- 髪の生え際：水平補助線 -->
       <line x1="130" y1="24" x2="210" y2="24" stroke="#C62828" stroke-width="1.5" stroke-dasharray="3,2"/>
-      <!-- あご：水平補助線 -->
       <line x1="130" y1="91" x2="210" y2="91" stroke="#C62828" stroke-width="1.5" stroke-dasharray="3,2"/>
-      <!-- 寸法矢印（縦、右寄り） -->
       <line x1="186" y1="24" x2="186" y2="91"
             stroke="#C62828" stroke-width="2"
             marker-start="url(#arr-men-rev)" marker-end="url(#arr-men)"/>
-      <!-- 端点ティック -->
       <line x1="182" y1="24" x2="190" y2="24" stroke="#C62828" stroke-width="1.5"/>
       <line x1="182" y1="91" x2="190" y2="91" stroke="#C62828" stroke-width="1.5"/>
-      <!-- ラベル -->
       <text x="193" y="30" fill="#C62828" font-size="9" font-weight="700">髪の生え際</text>
       <text x="193" y="89" fill="#C62828" font-size="9" font-weight="700">あご</text>
       <text id="fig-men" x="150" y="62" text-anchor="middle" fill="#C62828" font-size="12" font-weight="800">10.0cm</text>
       </g>
 
-      <!-- 顔の中心水平線（最前面・肩の上 y=96） -->
       <line x1="90" y1="96" x2="250" y2="96" stroke="#FF6F00" stroke-width="1.5" stroke-dasharray="5,3"/>
-
-      <!-- 胸の位置水平線（最前面：中心y=96から顔高さ分下 y=163） -->
       <line x1="90" y1="163" x2="250" y2="163" stroke="#FF6F00" stroke-width="2" stroke-dasharray="5,3"/>
       <text x="170" y="174" text-anchor="middle" fill="#FF6F00" font-size="9" font-weight="800">むね</text>
-
-      <!-- 中心→むね 寸法線（左側 x=72、他寸法と重ならない位置） -->
       <line x1="72" y1="96" x2="72" y2="163"
             stroke="#FF6F00" stroke-width="2"
             marker-start="url(#arr-orange-rev)" marker-end="url(#arr-orange)"/>
@@ -465,17 +563,72 @@ svg.figure{
       <line x1="68" y1="163" x2="76" y2="163" stroke="#FF6F00" stroke-width="1.5"/>
       <text id="fig-center-chest" x="66" y="131" text-anchor="end" fill="#FF6F00" font-size="10" font-weight="800">10.0cm</text>
       <text x="66" y="143" text-anchor="end" fill="#FF6F00" font-size="8">顔の中心線～むね</text>
-
     </svg>
   </div>
 </div>
 
-
 <div class="footer">ねぶた 人物バランス計算ツール</div>
+
+</div><!-- #tool-nebuta -->
+
+
+<!-- ════════════════════════════════
+     ツール②：頭部プロポーション
+════════════════════════════════ -->
+<div id="tool-head" style="display:none;">
+
+<div class="hp-container">
+
+  <!-- 入力 -->
+  <div class="hp-input-section">
+    <div class="hp-input-label">
+      頭の高さ
+      <span id="hp-display-val">20</span>
+    </div>
+    <div class="hp-slider-row">
+      <input type="range" class="hp-range" id="hp-slider" min="5" max="50" value="20" step="0.5">
+      <input type="number" class="hp-number" id="hp-number" min="5" max="50" value="20" step="0.5">
+      <span class="hp-unit">cm</span>
+    </div>
+  </div>
+
+  <!-- タブ＋Canvas -->
+  <div class="hp-tab-section">
+    <div class="hp-tabs">
+      <button class="hp-tab-btn active" id="hp-tab-front" onclick="hpSwitchTab('front')">正面図</button>
+      <button class="hp-tab-btn" id="hp-tab-side" onclick="hpSwitchTab('side')">側面図</button>
+    </div>
+    <div class="hp-canvas-wrap">
+      <canvas id="hp-canvas" width="340" height="380"></canvas>
+    </div>
+  </div>
+
+  <!-- 結果テーブル -->
+  <div class="hp-result-section">
+    <h2>計算結果（あごからの距離）</h2>
+    <table class="hp-table">
+      <thead>
+        <tr>
+          <th>パーツ</th>
+          <th style="text-align:right">距離</th>
+        </tr>
+      </thead>
+      <tbody id="hp-result-tbody"></tbody>
+    </table>
+  </div>
+
+</div><!-- .hp-container -->
+
+<div class="footer">標準タイプの頭部計算ツール</div>
+
+</div><!-- #tool-head -->
 
 </div><!-- #app -->
 
 <script>
+/* ══════════════════════════════════
+   ログイン
+══════════════════════════════════ */
 const PW = 'yuito0126';
 
 function doLogin(){
@@ -494,6 +647,27 @@ if(sessionStorage.getItem('nebuta_auth')==='1'){
   document.getElementById('login-overlay').style.display='none';
 }
 
+/* ══════════════════════════════════
+   ツール切り替え
+══════════════════════════════════ */
+const TOOL_META = {
+  nebuta: { title:'ねぶた 寸法計算ツール', sub:'人物バランスの　かんたん計算' },
+  head:   { title:'標準タイプの頭部計算ツール', sub:'頭部パーツのプロポーション計算' },
+};
+
+function switchTool(name) {
+  document.getElementById('tool-nebuta').style.display = name === 'nebuta' ? '' : 'none';
+  document.getElementById('tool-head').style.display   = name === 'head'   ? '' : 'none';
+  document.getElementById('nav-nebuta').classList.toggle('active', name === 'nebuta');
+  document.getElementById('nav-head').classList.toggle('active',   name === 'head');
+  document.getElementById('header-title').textContent = TOOL_META[name].title;
+  document.getElementById('header-sub').textContent   = TOOL_META[name].sub;
+  if (name === 'head') { hpDraw(); hpUpdateTable(); }
+}
+
+/* ══════════════════════════════════
+   ツール①：ねぶた計算
+══════════════════════════════════ */
 const REF = { men:20, ude:22, te:20, ashi:26, sune:32 };
 
 function fmt(v){ return v.toFixed(1); }
@@ -501,7 +675,6 @@ function fmt(v){ return v.toFixed(1); }
 function calc(){
   const face = parseFloat(document.getElementById('face-input').value) || 0;
   const ratio = face / REF.men;
-
   const men  = face;
   const ude  = REF.ude  * ratio;
   const te   = REF.te   * ratio;
@@ -514,7 +687,6 @@ function calc(){
   document.getElementById('val-ashi').innerHTML = fmt(ashi) + '<span>cm</span>';
   document.getElementById('val-sune').innerHTML = fmt(sune) + '<span>cm</span>';
 
-  // 図のラベル更新
   document.getElementById('fig-men').textContent          = fmt(men)  + 'cm';
   document.getElementById('fig-center-chest').textContent = fmt(men)  + 'cm';
   document.getElementById('fig-ude').textContent   = fmt(ude)  + 'cm';
@@ -526,6 +698,165 @@ function calc(){
 }
 
 calc();
+
+/* ══════════════════════════════════
+   ツール②：頭部プロポーション
+══════════════════════════════════ */
+const HP_TOTAL = 3.5;
+const HP_FRONT_RATIO = 3.0 / 3.5;
+const HP_SIDE_RATIO  = 3.5 / 3.5;
+
+const HP_PARTS = [
+  { label:'生え際', units:0.5,  color:'#888888' },
+  { label:'眉',     units:1.5,  color:'#e07b3a' },
+  { label:'目',     units:1.75, color:'#4a90d9' },
+  { label:'鼻',     units:2.5,  color:'#7cba5a' },
+  { label:'口',     units:2.83, color:'#d9506a' },
+  { label:'あご',   units:3.5,  color:'#9b59b6' },
+];
+
+const HP_L = 64, HP_R = 56, HP_T = 20, HP_B = 28;
+
+let hpTab    = 'front';
+let hpHeight = 20;
+
+const hpCanvas = document.getElementById('hp-canvas');
+const hpCtx    = hpCanvas.getContext('2d');
+
+function hpSwitchTab(tab) {
+  hpTab = tab;
+  document.getElementById('hp-tab-front').classList.toggle('active', tab === 'front');
+  document.getElementById('hp-tab-side').classList.toggle('active', tab === 'side');
+  hpDraw();
+  hpUpdateTable();
+}
+
+function hpUpdateValue(val) {
+  val = Math.min(50, Math.max(5, parseFloat(val) || 5));
+  hpHeight = val;
+  document.getElementById('hp-display-val').textContent = val;
+  document.getElementById('hp-slider').value = val;
+  document.getElementById('hp-number').value = val;
+  hpDraw();
+  hpUpdateTable();
+}
+
+document.getElementById('hp-slider').addEventListener('input', e => hpUpdateValue(e.target.value));
+document.getElementById('hp-number').addEventListener('change', e => hpUpdateValue(e.target.value));
+
+function hpGetRect(wRatio) {
+  const aw = hpCanvas.width  - HP_L - HP_R;
+  const ah = hpCanvas.height - HP_T - HP_B;
+  let hw = aw, hh = hw / wRatio;
+  if (hh > ah) { hh = ah; hw = hh * wRatio; }
+  return { hw, hh, sx: HP_L + (aw - hw) / 2, sy: HP_T + (ah - hh) / 2 };
+}
+
+function hpDrawLines(sx, sy, hw, hh, endX) {
+  HP_PARTS.forEach(p => {
+    const y = sy + (p.units / HP_TOTAL) * hh;
+    hpCtx.beginPath();
+    hpCtx.moveTo(sx - 8, y);
+    hpCtx.lineTo(endX + 8, y);
+    hpCtx.strokeStyle = p.color;
+    hpCtx.lineWidth = 1.5;
+    hpCtx.setLineDash([4, 3]);
+    hpCtx.stroke();
+    hpCtx.setLineDash([]);
+    hpCtx.fillStyle = p.color;
+    hpCtx.font = 'bold 12px sans-serif';
+    hpCtx.textAlign = 'right';
+    hpCtx.fillText(p.label, HP_L - 10, y + 4);
+  });
+}
+
+function hpDraw() {
+  hpCtx.clearRect(0, 0, hpCanvas.width, hpCanvas.height);
+  if (hpTab === 'front') {
+    const { hw, hh, sx, sy } = hpGetRect(HP_FRONT_RATIO);
+    hpCtx.save();
+    hpCtx.beginPath();
+    hpCtx.ellipse(sx + hw/2, sy + hh/2, hw/2, hh/2, 0, 0, Math.PI*2);
+    hpCtx.fillStyle = '#fafafa';
+    hpCtx.fill();
+    hpCtx.strokeStyle = '#bbb';
+    hpCtx.lineWidth = 2;
+    hpCtx.stroke();
+    hpCtx.restore();
+    hpDrawLines(sx, sy, hw, hh, sx + hw);
+    const rx = sx + hw + 18;
+    hpCtx.beginPath();
+    hpCtx.moveTo(rx, sy);
+    hpCtx.lineTo(rx, sy + hh);
+    hpCtx.strokeStyle = '#ccc';
+    hpCtx.lineWidth = 1;
+    hpCtx.stroke();
+    hpCtx.fillStyle = '#aaa';
+    hpCtx.font = '11px sans-serif';
+    hpCtx.textAlign = 'left';
+    hpCtx.fillText(hpHeight + ' cm', rx + 5, sy + hh/2 + 4);
+    hpCtx.fillStyle = '#aaa';
+    hpCtx.font = '11px sans-serif';
+    hpCtx.textAlign = 'center';
+    hpCtx.fillText('幅 ' + (hpHeight * HP_FRONT_RATIO).toFixed(1) + ' cm', sx + hw/2, sy + hh + 18);
+  } else {
+    const aw = hpCanvas.width - HP_L - HP_R;
+    const ah = hpCanvas.height - HP_T - HP_B;
+    const hh = Math.min(ah, aw / 0.85);
+    const dd = hh * 0.85;
+    const sx = HP_L + (aw - dd) / 2;
+    const sy = HP_T + (ah - hh) / 2;
+    hpCtx.save();
+    hpCtx.beginPath();
+    hpCtx.ellipse(sx + dd*0.55, sy + hh*0.5, dd*0.5, hh*0.5, 0, 0, Math.PI*2);
+    hpCtx.fillStyle = '#fafafa';
+    hpCtx.fill();
+    hpCtx.strokeStyle = '#bbb';
+    hpCtx.lineWidth = 2;
+    hpCtx.stroke();
+    hpCtx.restore();
+    const browY = sy + (1.5/HP_TOTAL)*hh;
+    const noseY = sy + (2.5/HP_TOTAL)*hh;
+    const mouthY= sy + (2.83/HP_TOTAL)*hh;
+    const fx = sx + dd*0.06;
+    hpCtx.save();
+    hpCtx.beginPath();
+    hpCtx.moveTo(fx+2, browY);
+    hpCtx.lineTo(fx-12, noseY);
+    hpCtx.lineTo(fx+4, mouthY+4);
+    hpCtx.strokeStyle = '#bbb';
+    hpCtx.lineWidth = 1.5;
+    hpCtx.stroke();
+    hpCtx.restore();
+    hpDrawLines(sx, sy, dd, hh, sx + dd);
+    hpCtx.fillStyle = '#aaa';
+    hpCtx.font = '11px sans-serif';
+    hpCtx.textAlign = 'center';
+    hpCtx.fillText('奥行き ≈ ' + hpHeight.toFixed(1) + ' cm', sx + dd/2, sy + hh + 18);
+  }
+}
+
+function hpUpdateTable() {
+  const tbody = document.getElementById('hp-result-tbody');
+  tbody.innerHTML = '';
+  [...HP_PARTS].reverse().forEach(p => {
+    const cm = ((HP_TOTAL - p.units) / HP_TOTAL * hpHeight).toFixed(1);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="hp-dot" style="background:${p.color}"></span>${p.label}</td>
+      <td class="hp-td-value">${cm} cm</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  const isF = hpTab === 'front';
+  const extraCm = (hpHeight * (isF ? HP_FRONT_RATIO : HP_SIDE_RATIO)).toFixed(1);
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><span class="hp-dot" style="background:#aaa"></span>${isF ? '頭の幅（両耳）' : '頭の奥行き'}</td>
+    <td class="hp-td-value">${extraCm} cm</td>
+  `;
+  tbody.appendChild(tr);
+}
 </script>
 </body>
 </html>
