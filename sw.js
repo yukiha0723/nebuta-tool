@@ -1,4 +1,4 @@
-const CACHE = 'yuikiri-tool-v1';
+const CACHE = 'yuikiri-tool-v2';
 const ASSETS = ['/', '/index.html', '/manifest.json', '/icon.png'];
 
 // インストール時：アセットをキャッシュ
